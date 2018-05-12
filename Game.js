@@ -10,7 +10,7 @@ class Game{
                 centerMass:{x:0,y:0},
                 indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
-                color:Canvas.getRandomColor()
+                color:Canvas.getRandomColorRGBA()
             },
             {
                 id:5,
@@ -20,7 +20,7 @@ class Game{
                 centerMass:{x:0,y:0},
                 indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
-                color:Canvas.getRandomColor()
+                color:Canvas.getRandomColorRGBA()
             },
             {
                 id:4,
@@ -30,7 +30,7 @@ class Game{
                 centerMass:{x:0,y:0},
                 indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
-                color:Canvas.getRandomColor()
+                color:Canvas.getRandomColorRGBA()
             },
         ];
         this.idActiveFigure = -1;

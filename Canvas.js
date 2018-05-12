@@ -189,4 +189,14 @@ class Canvas{
      * @returns {string}
      */
     static getRandomColor(){return '#'+Math.floor(Math.random()*16777215).toString(16)}
+
+    /**
+     * Возвращает случайный цвет типа rgba(0,0,0,0.5)
+     * @param transperent - прозрачность float(0-1)
+     * @return {string}
+     */
+    static getRandomColorRGBA(transperent){
+        transperent = transperent === undefined ? 1 : transperent;
+        return "rgba("+this.getRandomInt(0,255)+","+this.getRandomInt(0,255)+","+this.getRandomInt(0,255)+","+transperent+")";
+    }
 }
