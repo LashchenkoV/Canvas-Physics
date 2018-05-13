@@ -16,6 +16,50 @@
 class Canvas{
 
     /**
+     * Возвращает массив обьектов которые входят в зону поиска
+     * @param objects - обьекты которые нужно проверить
+     * @param centerPoint - центр круга
+     * @param radius - радиус круга в котором будет проверка
+     * @return {Array}
+     */
+    static detectedNearestObject(objects, centerPoint, radius){
+        let arrObjects = [];
+        for (let i=0; i<objects.length; i++){
+            if (objects[i].centerMass === centerPoint)  continue;
+            for (let j=0; j < objects[i].x.length; j++) {
+                if (this.isPointOfCircle({x:objects[i].x[j], y:objects[i].y[j]}, {x:centerPoint.x, y:centerPoint.y, r:radius})){
+                    arrObjects.push(objects[i]);
+                    break;
+                }
+            }
+        }
+        return arrObjects;
+    }
+
+
+    /**
+     * Проверяет есть ли вхождение фигуры в массив фигур
+     * @param figures - массив фигур
+     * @param figure - фигура которая проверяется на вхождение
+     * @return {Array} - [[{x:0,y:0},{x:0,y:0}],[{x:0,y:0}]] - Из какой фигуры сколько точек входит
+     */
+    static isCrossingFigures(figures, figure){
+        let arrPoints = [];
+        for (let i = 0; i < figures.length; i++) {
+            arrPoints.push({
+                id:figures[i].id,
+                crossPoint:[]
+            });
+            for (let j = 0; j < figures[i].x.length; j++) {
+                let coordinatePoint = { x: figures[i].x[j], y: figures[i].y[j] };
+                if(this.isEntrance([figure],coordinatePoint) !== -1)
+                    arrPoints[i].crossPoint.push(coordinatePoint)
+            }
+        }
+        return arrPoints;
+    }
+
+    /**
      * Возвращает значения на сколько нужно сдвигать, что бы достич конечную точку, а проще (нормализацию)
      * @param from - кто двигается
      * @param to - куда двигаться
@@ -126,6 +170,17 @@ class Canvas{
         for(let i = 1; i < paramFigure.x.length; i++)
             figure.lineTo(paramFigure.x[i],paramFigure.y[i]);
         ctx.fill(figure);
+    }
+
+    /**
+     * Проверяет входит ли точка в круг
+     * @param point - {x:0,y:0}
+     * @param circle - {x:0,y:0,r:0}
+     * @return {boolean}
+     */
+    static isPointOfCircle(point, circle){
+        if(Math.sqrt(Math.pow(circle.x - point.x,2)+Math.pow(circle.y - point.y,2)) <= circle.r) return true;
+        return false;
     }
 
     /**

@@ -10,7 +10,7 @@ class Game{
                 centerMass:{x:0,y:0},
                 indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
-                color:Canvas.getRandomColorRGBA()
+                color:Canvas.getRandomColorRGBA(0.7)
             },
             {
                 id:5,
@@ -20,7 +20,7 @@ class Game{
                 centerMass:{x:0,y:0},
                 indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
-                color:Canvas.getRandomColorRGBA()
+                color:Canvas.getRandomColorRGBA(0.7)
             },
             {
                 id:4,
@@ -30,7 +30,7 @@ class Game{
                 centerMass:{x:0,y:0},
                 indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
-                color:Canvas.getRandomColorRGBA()
+                color:Canvas.getRandomColorRGBA(0.7)
             },
         ];
         this.idActiveFigure = -1;
@@ -63,6 +63,18 @@ class Game{
     init(){
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
+
+        //Cвет
+        // this.ctx.globalCompositeOperation = 'lighter';
+
+        //Прозрачность
+        // this.ctx.globalAlpha = 1;
+
+        //Тень
+        // this.ctx.shadowColor = '#999';
+        // this.ctx.shadowOffsetY = 100;
+        // this.ctx.shadowOffsetX = 100;
+
 
         //FPS счётчик
         this.fps = new Stats();
@@ -128,6 +140,16 @@ class Game{
                     )
                 );
             }
+        }
+
+        if (this.indexActiveFigureFromArray !== -1){
+            // this.ctx.beginPath();
+            // this.ctx.arc(this.figures[this.indexActiveFigureFromArray].centerMass.x,this.figures[this.indexActiveFigureFromArray].centerMass.y,200,0,Math.PI*2);
+            // this.ctx.stroke();
+
+            let detectFigure = Canvas.detectedNearestObject(this.figures, this.figures[this.indexActiveFigureFromArray].centerMass,200);
+            let print = Canvas.isCrossingFigures(detectFigure, this.figures[this.indexActiveFigureFromArray]);
+            //console.log(print);
         }
 
         //Перерисовываем все фигуры.
