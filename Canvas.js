@@ -15,74 +15,43 @@
  */
 class Canvas{
 
-    /**
-     * Возвращает массив обьектов которые входят в зону поиска
-     * @param objects - обьекты которые нужно проверить
-     * @param centerPoint - центр круга
-     * @param radius - радиус круга в котором будет проверка
-     * @return {Array}
-     */
-    static detectedNearestObject(objects, centerPoint, radius){
-        let arrObjects = [];
-        for (let i=0; i<objects.length; i++){
-            if (objects[i].centerMass === centerPoint)  continue;
-            for (let j=0; j < objects[i].x.length; j++) {
-                if (this.isPointOfCircle({x:objects[i].x[j], y:objects[i].y[j]}, {x:centerPoint.x, y:centerPoint.y, r:radius})){
-                    arrObjects.push(objects[i]);
-                    break;
-                }
-            }
-        }
-        return arrObjects;
-    }
-
-
-    /**
-     * Проверяет есть ли вхождение фигуры в массив фигур
-     * @param figures - массив фигур
-     * @param figure - фигура которая проверяется на вхождение
-     * @return {Array} - [[{x:0,y:0},{x:0,y:0}],[{x:0,y:0}]] - Из какой фигуры сколько точек входит
-     */
-    static isCrossingFigures(figures, figure){
+    static getPointsFromCrossingFigures(mainFigure, figure){
         let arrPoints = [];
-        for (let i = 0; i < figures.length; i++) {
-            arrPoints.push({
-                id:figures[i].id,
-                crossPoint:[]
-            });
-            for (let j = 0; j < figures[i].x.length; j++) {
-                let coordinatePoint = { x: figures[i].x[j], y: figures[i].y[j] };
-                if(this.isEntrance([figure],coordinatePoint) !== -1)
-                    arrPoints[i].crossPoint.push(coordinatePoint)
+        let segmentsMainFigure = this.getSegmentsFromFigure(mainFigure);
+        let segmentsFigure = this.getSegmentsFromFigure(figure);
+        for (let i = 0; i < segmentsMainFigure.length; i++){
+            for (let j = 0; j < segmentsFigure.length; j++){
+                let isCross = this.isCrossLine(segmentsMainFigure[i],segmentsFigure[j]);
+                if(isCross !== false)
+                    arrPoints.push(isCross)
             }
         }
         return arrPoints;
     }
 
     /**
-     * Возвращает значения на сколько нужно сдвигать, что бы достич конечную точку, а проще (нормализацию)
-     * @param from - кто двигается
-     * @param to - куда двигаться
-     * @param speed - скорость движения
-     * @returns {{x: number, y: number}}
+     * Возвращает массив отрезков из которых состоит фигура
+     * @param figure
+     * @return {Array}
      */
-    static getNormalize(from, to, speed) {
-        speed = speed === undefined ? 1 : speed;
-        let normalize = {x:0,y:0},
-            target = this.getTarget(from,to);
-        normalize.x = target.x / Math.sqrt(Math.pow(target.x, 2) + Math.pow(target.y, 2)) * speed;
-        normalize.y = target.y / Math.sqrt(Math.pow(target.x, 2) + Math.pow(target.y, 2)) * speed;
+    static getSegmentsFromFigure(figure){
+        let arr = [];
+        for(let i = 0; i < figure.x.length; i++){
+            let toX = figure.x[i+1],
+                toY = figure.y[i+1];
 
-        return normalize;
+            if(i === figure.x.length-1){
+                toX = figure.x[0];
+                toY = figure.y[0];
+            }
+
+            arr.push({
+                from: {x:figure.x[i], y:figure.y[i]},
+                to: {x:toX, y:toY}
+            });
+        }
+        return arr;
     }
-
-    /**
-     * Возвращает расстояние от координаты - from, до координаты - to
-     * @param from - object {x:numb,y:numb}
-     * @param to - object {x:numb,y:numb}
-     * @returns {{x: number, y: number}}
-     */
-    static getTarget(from, to){return {x: to.x - from.x, y: to.y - from.y}}
 
     /**
      * Инкрементирует свойства обьекта на значение
@@ -120,6 +89,31 @@ class Canvas{
         }
         return arr;
     }
+
+    /**
+     * Рисует сетку на Canvas
+     * @param ctx - canvas с ОБЯЗАТЕЛЬНЫМИ параметрами height, width
+     * @param step - {x:0,y:0} - размер клетки
+     * @param color - цвет сетки
+     */
+    static paintMash(ctx,step,color){
+        let mash = new Path2D(),
+            width = parseInt(ctx.width),
+            height = parseInt(ctx.height);
+
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = color === undefined ? "#999" : color;
+
+        for(let i = 0; i < width; i += step.x){
+            mash.moveTo(i+0.5,0);
+            mash.lineTo(i+0.5,height);
+        }
+        for(let i = 0 ; i < height; i +=  step.y){
+            mash.moveTo(0,i+0.5);
+            mash.lineTo(width,i+0.5);
+        }
+        ctx.stroke(mash);
+    }
     /**
      * Рисует стрелку с текстом
      * @param ctx - Поле на котором рисовать
@@ -128,9 +122,10 @@ class Canvas{
      * @param text - Текст возле стрелки
      * @param sizeArrow - длинна веток стрелки.
      */
-    static paintVector(ctx, coordinateFrom, coordinateTo, text, sizeArrow){
+    static paintVector(ctx, coordinateFrom, coordinateTo, text, color, sizeArrow){
         sizeArrow = sizeArrow === undefined ? 10 : sizeArrow;
-
+        color = color === undefined ? "#111":color;
+        ctx.strokeStyle = color;
         let angle = Math.atan2(coordinateTo.y - coordinateFrom.y, coordinateTo.x - coordinateFrom.x),
             maxWidthText = 50,
             line = new Path2D();
@@ -149,16 +144,6 @@ class Canvas{
     }
 
     /**
-     * Возвращает координаты квадрата вокруг точки
-     * @param centerMass - {x:50,y:127} Сама точка
-     * @param radius - Радиус квадрата
-     * @returns {{x: *[], y: *[]}} - массив с координатами 4 точек
-     */
-    static getCenterMiniFigure(centerMass,radius){
-        return {x:[centerMass.x-radius,centerMass.x+radius,centerMass.x+radius,centerMass.x-radius], y:[centerMass.y-radius,centerMass.y-radius,centerMass.y+radius,centerMass.y+radius]};
-    }
-
-    /**
      * Рисует фигуру по заданым точкам на поле.
      * @param ctx - поле на котором рисовать
      * @param paramFigure - {x:[], y:[], color:"#ddd"}
@@ -170,6 +155,32 @@ class Canvas{
         for(let i = 1; i < paramFigure.x.length; i++)
             figure.lineTo(paramFigure.x[i],paramFigure.y[i]);
         ctx.fill(figure);
+    }
+
+    /**
+     * Пересекаются ли 2 линии
+     * @param firstLine
+     * @param secondLine
+     * @return {*} false || точку пересечения в формате {x:float,y:float}
+     */
+    static isCrossLine(firstLine, secondLine){
+        let point = {x:0,y:0};
+
+        let d = (firstLine.from.x - firstLine.to.x) * (secondLine.to.y - secondLine.from.y) - (firstLine.from.y - firstLine.to.y) * (secondLine.to.x - secondLine.from.x);
+        let da = (firstLine.from.x - secondLine.from.x) * (secondLine.to.y - secondLine.from.y) - (firstLine.from.y - secondLine.from.y) * (secondLine.to.x - secondLine.from.x);
+        let db = (firstLine.from.x - firstLine.to.x) * (firstLine.from.y - secondLine.from.y) - (firstLine.from.y - firstLine.to.y) * (firstLine.from.x - secondLine.from.x);
+
+        let ta = da / d;
+        let tb = db / d;
+
+        if (ta >= 0 && ta <= 1 && tb >= 0 && tb <= 1)
+        {
+            point.x = firstLine.from.x + ta * (firstLine.to.x - firstLine.from.x);
+            point.y = firstLine.from.y + ta * (firstLine.to.y - firstLine.from.y);
+            return point;
+        }
+
+        return false;
     }
 
     /**
@@ -204,6 +215,52 @@ class Canvas{
     }
 
     /**
+     * Возвращает массив обьектов которые входят в зону поиска
+     * @param objects - обьекты которые нужно проверить
+     * @param centerPoint - центр круга
+     * @param radius - радиус круга в котором будет проверка
+     * @return {Array}
+     */
+    static getDetectedNearestObject(objects, centerPoint, radius){
+        let arrObjects = [];
+        for (let i=0; i<objects.length; i++){
+            if (objects[i].centerMass === centerPoint)  continue;
+            for (let j=0; j < objects[i].x.length; j++) {
+                if (this.isPointOfCircle({x:objects[i].x[j], y:objects[i].y[j]}, {x:centerPoint.x, y:centerPoint.y, r:radius})){
+                    arrObjects.push(objects[i]);
+                    break;
+                }
+            }
+        }
+        return arrObjects;
+    }
+
+    /**
+     * Возвращает значения на сколько нужно сдвигать, что бы достич конечную точку, а проще (нормализацию)
+     * @param from - кто двигается
+     * @param to - куда двигаться
+     * @param speed - скорость движения
+     * @returns {{x: number, y: number}}
+     */
+    static getNormalize(from, to, speed) {
+        speed = speed === undefined ? 1 : speed;
+        let normalize = {x:0,y:0},
+            target = this.getTarget(from,to);
+        normalize.x = target.x / Math.sqrt(Math.pow(target.x, 2) + Math.pow(target.y, 2)) * speed;
+        normalize.y = target.y / Math.sqrt(Math.pow(target.x, 2) + Math.pow(target.y, 2)) * speed;
+
+        return normalize;
+    }
+
+    /**
+     * Возвращает расстояние от координаты - from, до координаты - to
+     * @param from - object {x:numb,y:numb}
+     * @param to - object {x:numb,y:numb}
+     * @returns {{x: number, y: number}}
+     */
+    static getTarget(from, to){return {x: to.x - from.x, y: to.y - from.y}}
+
+    /**
      * Возвращает первый Index обьекта в Array в котором произошло совпадение значения заданого параметра
      * @param arrObjects - Массив обьектов типа: [[object],[object]]
      * @param param - По какому параметру в обьекте искать обьект
@@ -215,6 +272,16 @@ class Canvas{
             if(arrObjects[i][param] === value) return i;
         }
         return -1;
+    }
+
+    /**
+     * Возвращает координаты квадрата вокруг точки
+     * @param centerMass - {x:50,y:127} Сама точка
+     * @param radius - Радиус квадрата
+     * @returns {{x: *[], y: *[]}} - массив с координатами 4 точек
+     */
+    static getCenterMiniFigure(centerMass,radius){
+        return {x:[centerMass.x-radius,centerMass.x+radius,centerMass.x+radius,centerMass.x-radius], y:[centerMass.y-radius,centerMass.y-radius,centerMass.y+radius,centerMass.y+radius]};
     }
 
     /**
