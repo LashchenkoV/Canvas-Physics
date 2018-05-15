@@ -8,7 +8,7 @@ class Game{
                 y:[0, 200, 200, 40, 40, 120, 120, 0],
                 massa:10,
                 centerMass:{x:0,y:0},
-                indentFromCenterMass:{x:0,y:0},
+                //indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
                 color:Canvas.getRandomColorRGBA(0.9)
             },
@@ -18,7 +18,7 @@ class Game{
                 y:[200,200,300,300],
                 massa:20,
                 centerMass:{x:0,y:0},
-                indentFromCenterMass:{x:0,y:0},
+                //indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
                 color:Canvas.getRandomColorRGBA(0.9)
             },
@@ -28,7 +28,7 @@ class Game{
                 x:[25,50,50,100,175,175,125,125,100,100,50,25],
                 y:[0,10,150,200,250,200,250,300,325,425,350,325],
                 centerMass:{x:0,y:0},
-                indentFromCenterMass:{x:0,y:0},
+                //indentFromCenterMass:{x:0,y:0},
                 finalMovePoint:{x:0,y:0},
                 color:Canvas.getRandomColorRGBA(0.9)
             },
@@ -153,7 +153,7 @@ class Game{
             Canvas.paintFigure(this.ctx, this.figures[i]);
         }
         if (this.indexActiveFigureFromArray !== -1){
-
+            console.log(Canvas.getSquareFigure(this.figures[this.indexActiveFigureFromArray]))
             //Зона обнаружения фигур
             this.ctx.beginPath();
             this.ctx.arc(this.figures[this.indexActiveFigureFromArray].centerMass.x,this.figures[this.indexActiveFigureFromArray].centerMass.y,260,0,Math.PI*2);
@@ -162,12 +162,19 @@ class Game{
             let detectFigure = Canvas.getDetectedNearestObject(this.figures, this.figures[this.indexActiveFigureFromArray].centerMass,260);
             for(let i=0;i<detectFigure.length;i++){
                 let print = Canvas.getPointsFromCrossingFigures(detectFigure[i], this.figures[this.indexActiveFigureFromArray]);
-                for(let j=0;j<print.length;j++){
-                    this.ctx.fillStyle="red";
-                    this.ctx.beginPath();
-                    this.ctx.arc(print[j].x,print[j].y,5,0,Math.PI*2);
-                    this.ctx.fill();
+                if (print.length !== 0){
+
+                    let norm = Canvas.getNormalize(this.figures[this.indexActiveFigureFromArray].centerMass,this.cursor, 5);
+                    let a ={x:norm.x+detectFigure[i].centerMass.x,y:norm.y+detectFigure[i].centerMass.y}
+                    Canvas.incrementElementsObject(detectFigure[i], Canvas.getNormalize(detectFigure[i].centerMass, a, 5))
+                    for(let j=0;j<print.length;j++){
+                        this.ctx.fillStyle="red";
+                        this.ctx.beginPath();
+                        this.ctx.arc(print[j].x,print[j].y,5,0,Math.PI*2);
+                        this.ctx.fill();
+                    }
                 }
+
             }
             // let from1 = {x:100,y:100},
             //     to1 = {x:100,y:500},

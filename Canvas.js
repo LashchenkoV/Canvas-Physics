@@ -15,6 +15,26 @@
  */
 class Canvas{
 
+
+    /**
+     * Возвращает площадь произвольной фигуры
+     * @param figure
+     * @return {number}
+     */
+    static getSquareFigure(figure){
+        let square = 0;
+        let segmentsFigure = this.getSegmentsFromFigure(figure);
+        for (let i =0;i<segmentsFigure.length; i++)
+           square += ((segmentsFigure[i].from.x * segmentsFigure[i].to.y)-(segmentsFigure[i].to.x * segmentsFigure[i].from.y));
+        return this.getRoundNum(Math.abs(0.5*square),2);
+    }
+
+    /**
+     * Возвращает массив точек пересечения 2 фигур
+     * @param mainFigure
+     * @param figure
+     * @return {Array}
+     */
     static getPointsFromCrossingFigures(mainFigure, figure){
         let arrPoints = [];
         let segmentsMainFigure = this.getSegmentsFromFigure(mainFigure);
@@ -146,15 +166,15 @@ class Canvas{
     /**
      * Рисует фигуру по заданым точкам на поле.
      * @param ctx - поле на котором рисовать
-     * @param paramFigure - {x:[], y:[], color:"#ddd"}
+     * @param figure - {x:[], y:[], color:"#ddd"}
      */
-    static paintFigure(ctx,paramFigure){
-        let figure = new Path2D();
-        ctx.fillStyle = paramFigure.color;
-        figure.moveTo(paramFigure.x[0],paramFigure.y[0]);
-        for(let i = 1; i < paramFigure.x.length; i++)
-            figure.lineTo(paramFigure.x[i],paramFigure.y[i]);
-        ctx.fill(figure);
+    static paintFigure(ctx,figure){
+        let fig = new Path2D();
+        ctx.fillStyle = figure.color;
+        fig.moveTo(figure.x[0],figure.y[0]);
+        for(let i = 1; i < figure.x.length; i++)
+            fig.lineTo(figure.x[i],figure.y[i]);
+        ctx.fill(fig);
     }
 
     /**
@@ -307,6 +327,14 @@ class Canvas{
     static getRandomInt(min,max){return Math.round(min - 0.5 + Math.random() * (max - min + 1))};
 
     /**
+     * Округляет число до заданой точности
+     * @param number - число которое нужно округлить
+     * @param n - колличество знаков после запятой
+     * @return {number}
+     */
+    static getRoundNum(number, n){return +parseFloat(number).toFixed(n)}
+
+    /**
      * Возвращает случайный код цвета типа #ffffff
      * @returns {string}
      */
@@ -319,6 +347,6 @@ class Canvas{
      */
     static getRandomColorRGBA(transperent){
         transperent = transperent === undefined ? 1 : transperent;
-        return "rgba("+this.getRandomInt(0,255)+","+this.getRandomInt(0,255)+","+this.getRandomInt(0,255)+","+transperent+")";
+        return `rgba(${this.getRandomInt(0,255)},${this.getRandomInt(0,255)},${this.getRandomInt(0,255)},${transperent})`;
     }
 }
