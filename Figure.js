@@ -5,10 +5,12 @@ class Figure {
         this.speed = speed === undefined?1:parseFloat(speed);
         this.segments = [];
         this.centerMass = {};
-        this.collisionPoint = [];
+        this.collisionFigures = [];
+        this.zoneDetect = 350;
         this.shapeFigure(points);
         this.active = 0;
         this.freeze = this.speed !== 0 ? 0 : 1;
+        this.zoneDetect = this.freeze === 1?0:410;
         this.updateCenterMass();
         this.finalMovePoint = this.centerMass;
     }
@@ -96,20 +98,39 @@ class Figure {
     /**
      * Пересекаются ли фигуры
      * @param figure - фигура которую проверяем на пересекаемость с нашей
-     * @return {Array}
+     * @return {object}||-1 - Если есть сопадения то обьект с id figure and cross Points
      */
     getArrPointFromCrossingFigures(figure){
-        let arrPoints = [];
+        let arrPoints = {idFigure:figure.id,points:[]};
         for (let i = 0; i < this.segments.length; i++){
             for (let j = 0; j < figure.segments.length; j++){
                 let isCross = this.segments[i].isCross(figure.segments[j]);
                 if(isCross !== false){
-                    //console.log(new Segment(this.centerMass, this.finalMovePoint).getAngle(figure.segments[j])*(180/Math.PI))
-                    arrPoints.push(isCross)
+                    arrPoints.points.push(isCross)
                 }
             }
         }
-        return arrPoints;
+        if(arrPoints.points.length !== 0)
+            return arrPoints;
+        else return -1;
+    }
+
+    /**
+     * Обнаруживает столкновения с figures и записывает их в массив
+     * @param figures - Фигуры с которыми проверять столкновение,
+     *                  не стоит забывать, если они не входят в зону
+     *                  обнаружения (zoneDetect), они будут проигнорированы
+     */
+    detectCollision(figures){
+        let arrDetectFigure = this.getDetectedNearestFigures(figures, this.zoneDetect);
+        this.collisionFigures = [];
+        //Обнаруживаем столкновения с фигурами
+        for(let j = 0; j < arrDetectFigure.length; j++){
+            let collisionFigure = this.getArrPointFromCrossingFigures(arrDetectFigure[j]);
+            //Если есть столкновение то добавляем его в массив столкновений проверяемой фигуры
+            if(collisionFigure !== -1)
+                this.collisionFigures.push(collisionFigure);
+        }
     }
 
     /**

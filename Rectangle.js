@@ -1,13 +1,11 @@
 class Rectangle extends Figure{
     constructor(sizeX, sizeY, centerPoint, speed, color){
-        Rectangle.sizeX = sizeX/2;
-        Rectangle.sizeY = sizeY/2;
-        Rectangle.centerPoint = centerPoint;
-        let p1 = new Point(Rectangle.centerPoint.x-Rectangle.sizeX, Rectangle.centerPoint.y-Rectangle.sizeY),
-            p2 = new Point(Rectangle.centerPoint.x+Rectangle.sizeX, Rectangle.centerPoint.y-Rectangle.sizeY),
-            p3 = new Point(Rectangle.centerPoint.x+Rectangle.sizeX, Rectangle.centerPoint.y+Rectangle.sizeY),
-            p4 = new Point(Rectangle.centerPoint.x-Rectangle.sizeX, Rectangle.centerPoint.y+Rectangle.sizeY);
+        sizeX/=2;
+        sizeY/=2;
+        let p1 = new Point(centerPoint.x-sizeX, centerPoint.y-sizeY),
+            p2 = new Point(centerPoint.x+sizeX, centerPoint.y-sizeY),
+            p3 = new Point(centerPoint.x+sizeX, centerPoint.y+sizeY),
+            p4 = new Point(centerPoint.x-sizeX, centerPoint.y+sizeY);
         super([p1,p2,p3,p4],speed, color);
-
     }
 }

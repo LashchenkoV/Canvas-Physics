@@ -11,6 +11,7 @@ class Point {
      * @param ctx - поле на котором рисовать
      * @param r - радиус
      * @param flag - может прийнять значение fill- тогда будет полная заливка.
+     * @param color - цвет точки
      */
     paintPoint(ctx, r, flag, color){
         r = r === undefined ? 5:r;
@@ -32,17 +33,6 @@ class Point {
             return true;
         else
             return false;
-    }
-
-    /**
-     * Совпадает ли точка с нашей точкой
-     * @param point - точка с которой проверяем
-     * @return {boolean}
-     */
-    isSame(point){
-        if(point.x === this.x && point.y === this.y)
-            return true;
-        else return false;
     }
 
     /**
