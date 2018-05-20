@@ -93,8 +93,8 @@ class Main{
                 // if(this.indexActiveFigureFromArray !== -1)
                 //     console.log(this.figures[this.indexActiveFigureFromArray].collisionFigures)
 
-                //Если фигура не на конечной точке и её скоромть не 0
-                if(this.figures[i].speed !== 0 && !(this.figures[i].isFigureFromPoint(5,this.figures[i].finalMovePoint))){
+                //Если фигура не на конечной точке
+                if(!(this.figures[i].isFigureFromPoint(5,this.figures[i].finalMovePoint))){
                     new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Speed: "+this.figures[i].speed+" Square: "+this.figures[i].getSquareFigure()+" P: "+this.figures[i].getPerimeter())
                     this.figures[i].normalize();
                 }
