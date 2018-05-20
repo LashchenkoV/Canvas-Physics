@@ -70,11 +70,12 @@ class Figure {
     /**
      * Вращает фигуру вокруг указанной точки
      * @param point - точка вокруг которой нужно вращать
+     * @param direction - в какую сторону, -> -(int) || +(int)
      * @param deg - колличество градусов на которое повернуть
      */
-    rotate(point,deg){
+    rotate(point, direction, deg){
         for (let i = 0; i< this.segments.length; i++){
-            this.segments[i].rotateSegment(point,deg);
+            this.segments[i].rotateSegment(point, direction, deg);
         }
     }
 
