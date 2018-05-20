@@ -7,6 +7,7 @@ class Rectangle extends Figure{
             p2 = new Point(Rectangle.centerPoint.x+Rectangle.sizeX, Rectangle.centerPoint.y-Rectangle.sizeY),
             p3 = new Point(Rectangle.centerPoint.x+Rectangle.sizeX, Rectangle.centerPoint.y+Rectangle.sizeY),
             p4 = new Point(Rectangle.centerPoint.x-Rectangle.sizeX, Rectangle.centerPoint.y+Rectangle.sizeY);
-        super([p1,p2,p3,p4],speed);
+        super([p1,p2,p3,p4],speed, color);
+
     }
 }

@@ -7,10 +7,21 @@ class Segment {
      * @param lineWidth - толщина линии
      */
     constructor(fromPoint, toPoint, color, lineWidth){
+        this.id = Canvas.getRandomInt(Canvas.getRandomInt(0,new Date().getTime()),new Date().getTime());
         this.from = fromPoint;
         this.to = toPoint;
         this.color = color === undefined?Canvas.getRandomColorRGBA():color;
         this.lineWidth = lineWidth === undefined?1:lineWidth;
+    }
+
+    getVector(){
+        return new Point(this.to.x-this.from.x, this.to.y-this.from.y);
+    }
+
+    getAngle(segment){
+        let vector1 = this.getVector(),
+            vector2 = segment.getVector();
+        return Math.acos(Math.abs(vector1.x*vector2.x+vector1.y*vector2.y)/this.getDistanceSegment()*segment.getDistanceSegment());
     }
 
     /**

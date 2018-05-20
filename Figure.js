@@ -1,12 +1,14 @@
 class Figure {
     constructor(points, speed, color){
-        this.id = new Date().getTime();
+        this.id = Canvas.getRandomInt(Canvas.getRandomInt(0,new Date().getTime()),new Date().getTime());
         this.fillStyle = color === undefined? Canvas.getRandomColorRGBA():color;
         this.speed = speed === undefined?1:parseFloat(speed);
         this.segments = [];
         this.centerMass = {};
+        this.collisionPoint = [];
         this.shapeFigure(points);
         this.active = 0;
+        this.freeze = this.speed !== 0 ? 0 : 1;
         this.updateCenterMass();
         this.finalMovePoint = this.centerMass;
     }
@@ -31,16 +33,19 @@ class Figure {
     }
 
     /**
-     * Возвращает квадрат который лежит в центре фигуры
-     * @param radius - половина стороны квадрата
-     * @return {Figure}
+     * Проверка, находится ли центр фигуры на point
+     * @param radius - Радиус проверки(половина стороны квадрата)
+     * @param point - проверяемая точка
+     * @return {boolean}
      */
-    getMiniFigureFromCenterFigure(radius){
+    isFigureFromPoint(radius, point){
         let p1 = new Point(this.centerMass.x-radius,this.centerMass.y-radius),
             p2 = new Point(this.centerMass.x+radius, this.centerMass.y-radius),
-            p3 = new Point(this.centerMass.x+radius, this.centerMass.y+radius),
             p4 = new Point(this.centerMass.x-radius, this.centerMass.y+radius);
-        return new Figure([p1,p2,p3,p4],0);
+
+        if((point.x > p1.x && point.x<p2.x) && (point.y>p1.y && point.y<p4.y))
+            return true;
+        else return false;
     }
 
     /**
@@ -49,24 +54,22 @@ class Figure {
     updateCenterMass(){
         let center = {X:{min:0,max:0}, Y:{min:0,max:0}};
         let points = this.getArrPointsFromFigure();
-        center.X.min = Canvas.getMinOfArray(points.x);
-        center.X.max = Canvas.getMaxOfArray(points.x);
-        center.Y.min = Canvas.getMinOfArray(points.y);
-        center.Y.max = Canvas.getMaxOfArray(points.y);
-        this.centerMass = new Point(center.X.min/2 + center.X.max/2, center.Y.min/2 + center.Y.max/2)
+        center.X.min = Canvas.getMinOfArray(points.x)/2;
+        center.X.max = Canvas.getMaxOfArray(points.x)/2;
+        center.Y.min = Canvas.getMinOfArray(points.y)/2;
+        center.Y.max = Canvas.getMaxOfArray(points.y)/2;
+        this.centerMass = new Point(center.X.min + center.X.max, center.Y.min + center.Y.max)
     }
 
     /**
      * Сдвигает обьект к конечной точке на нужное колл пикселей
      */
-    normalize(){
+    normalize(normalize){
         this.updateCenterMass();
-        let normalize = this.centerMass.getNormalizePoint(this.finalMovePoint, this.speed);
+        normalize = normalize===undefined?this.centerMass.getNormalizePoint(this.finalMovePoint, this.speed):normalize;
         for (let i = 0; i< this.segments.length; i++){
             this.segments[i].normalizeSegment(normalize);
         }
-
-
     }
 
     /**
@@ -78,7 +81,8 @@ class Figure {
     getDetectedNearestFigures(figures, radius){
         let arrFigures = [];
         for (let i=0; i<figures.length; i++){
-            if (figures[i].centerMass.isSame(this.centerMass))  continue;
+            //Если это мы то ничего не делаем
+            if (figures[i].id === this.id)  continue;
             for (let j=0; j < figures[i].segments.length; j++) {
                 if (figures[i].segments[j].from.isPointOfCircle(this.centerMass, radius) || figures[i].segments[j].to.isPointOfCircle(this.centerMass, radius)){
                     arrFigures.push(figures[i]);
@@ -100,6 +104,7 @@ class Figure {
             for (let j = 0; j < figure.segments.length; j++){
                 let isCross = this.segments[i].isCross(figure.segments[j]);
                 if(isCross !== false){
+                    //console.log(new Segment(this.centerMass, this.finalMovePoint).getAngle(figure.segments[j])*(180/Math.PI))
                     arrPoints.push(isCross)
                 }
             }
@@ -145,7 +150,7 @@ class Figure {
      * @param ctx
      */
     paintFigure(ctx){
-        ctx.beginPath()
+        ctx.beginPath();
         ctx.fillStyle = this.fillStyle;
         ctx.moveTo(this.segments[0].from.x, this.segments[0].from.y);
         for(let i = 0; i < this.segments.length; i++){
@@ -161,7 +166,7 @@ class Figure {
      */
     getPositionSegmentFromFigure(segment){
         for(let i = 0; i< this.segments.length; i++){
-            if(this.segments[i] === segment) return i;
+            if(this.segments[i].id === segment.id) return i;
         }
         return -1;
     }
@@ -170,12 +175,11 @@ class Figure {
      * Возвращает периметр фигуры
      * @return {number}
      */
-    getPerimetr(){
-        let perim = 0;
-        for (let i=0; i<this.segments.length;i++){
-            perim += this.segments[i].getDistanceSegment();
-        }
-        return perim;
+    getPerimeter(){
+        let p = 0;
+        for (let i=0; i<this.segments.length;i++)
+            p += this.segments[i].getDistanceSegment();
+        return Canvas.getRoundNum(p,0);
     }
 
     /**

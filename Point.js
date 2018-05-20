@@ -76,8 +76,8 @@ class Point {
         let target = this.getTarget(point);
         if(target.x === 0  && target.y === 0 )
             return new Point(0, 0);
-        let x = target.x / this.getDistance(target) * speed;
-        let y = target.y / this.getDistance(target) * speed;
+        let x = target.x /this.getDistance(target) * speed;
+        let y = target.y /this.getDistance(target) * speed;
         //let y = target.y / Math.sqrt(Math.pow(target.x, 2) + Math.pow(target.y, 2)) * speed;
         return  new Point(x, y);
     }
