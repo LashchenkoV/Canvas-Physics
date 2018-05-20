@@ -58,18 +58,31 @@ class Point {
      * Возвращает колл пикселей на которое нужно сдвинуть точку,
      * для достижения контрольной точки
      * @param point - к какой точке делать сдвиг
-     * @param speed - скорость движения
+     * @param speed - ускорение
      * @return {Point}
      */
     getNormalizePoint(point, speed){
-        speed = speed === undefined?1:speed;
         let target = this.getTarget(point);
         if(target.x === 0  && target.y === 0 )
             return new Point(0, 0);
-        let x = target.x /this.getDistance(target) * speed;
-        let y = target.y /this.getDistance(target) * speed;
-        //let y = target.y / Math.sqrt(Math.pow(target.x, 2) + Math.pow(target.y, 2)) * speed;
+        let x = (target.x / this.getDistance(target)) * speed;
+        let y = (target.y / this.getDistance(target)) * speed;
+        //let y = target.y / Math.sqrt(Math.pow(target.x, 2) + Math.pow(target.y, 2))*speed;
         return  new Point(x, y);
+    }
+
+    /**
+     * Вращает точку вокруг Point
+     * @param point - точка вокруг которой вращать
+     * @param deg - Колличество градусов
+     */
+    rotatePoint(point,deg){
+        deg = deg*Math.PI/180;
+        let X = point.x + (this.x - point.x) * Math.cos(deg) - (this.y - point.y) * Math.sin(deg);
+        let Y = point.y + (this.y - point.y) * Math.cos(deg) + (this.x - point.x) * Math.sin(deg);
+        this.x = X;
+        this.y = Y;
+        //return new Point(X,Y)
     }
 
     /**

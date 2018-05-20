@@ -1,15 +1,18 @@
 class Figure {
-    constructor(points, speed, color){
+    constructor(points, massa, power, color){
         this.id = Canvas.getRandomInt(Canvas.getRandomInt(0,new Date().getTime()),new Date().getTime());
         this.fillStyle = color === undefined? Canvas.getRandomColorRGBA():color;
-        this.speed = speed === undefined?1:parseFloat(speed);
+        this.power = power === undefined?1:power;
+        this.massa = massa === undefined?1:massa;
+        this.gravity = 9.34;
+        this.acceleration = this.power/this.massa;
         this.segments = [];
         this.centerMass = {};
         this.collisionFigures = [];
         this.zoneDetect = 350;
         this.shapeFigure(points);
         this.active = 0;
-        this.freeze = this.speed !== 0 ? 0 : 1;
+        this.freeze = this.power !== 0 ? 0 : 1;
         this.zoneDetect = this.freeze === 1?0:410;
         this.updateCenterMass();
         this.finalMovePoint = this.centerMass;
@@ -65,11 +68,22 @@ class Figure {
     }
 
     /**
+     * Вращает фигуру вокруг указанной точки
+     * @param point - точка вокруг которой нужно вращать
+     * @param deg - колличество градусов на которое повернуть
+     */
+    rotate(point,deg){
+        for (let i = 0; i< this.segments.length; i++){
+            this.segments[i].rotateSegment(point,deg);
+        }
+    }
+
+    /**
      * Сдвигает обьект к конечной точке на нужное колл пикселей
      */
     normalize(normalize){
         this.updateCenterMass();
-        normalize = normalize===undefined?this.centerMass.getNormalizePoint(this.finalMovePoint, this.speed):normalize;
+        normalize = normalize===undefined?this.centerMass.getNormalizePoint(this.finalMovePoint, this.power):normalize;
         for (let i = 0; i< this.segments.length; i++){
             this.segments[i].normalizeSegment(normalize);
         }
@@ -99,16 +113,16 @@ class Figure {
     /**
      * Пересекаются ли фигуры
      * @param figure - фигура которую проверяем на пересекаемость с нашей
-     * @param callback - функция которую нужно применить для точки, например рисовать.
+     * @param callbackForPoint - функция которую нужно применить для точки, например рисовать.
      * @return {object}||-1 - Если есть сопадения то обьект с id figure and cross Points
      */
-    getArrPointFromCrossingFigures(figure, callback){
+    getArrPointFromCrossingFigures(figure, callbackForPoint){
         let arrPoints = {idFigure:figure.id,points:[]};
         for (let i = 0; i < this.segments.length; i++){
             for (let j = 0; j < figure.segments.length; j++){
                 let isCross = this.segments[i].isCross(figure.segments[j]);
                 if(isCross !== false){
-                    callback!==undefined?callback(isCross):0;
+                    callbackForPoint!==undefined?callbackForPoint(isCross):0;
                     arrPoints.points.push(isCross)
                 }
             }
@@ -120,20 +134,25 @@ class Figure {
 
     /**
      * Обнаруживает столкновения с figures, результат хранится в this.collisionFigures
-     * @param callback - функция которую нужно применить для Point.
+     * @param callbackForPoint - функция которую нужно применить для Point.
+     * @param callbackForFigure - функция которую нужно применить для Figure c которой
+     *                            столкнулись, если она не нужна, а callbackPoint нужна,
+     *                            передать вместо ф-ции null
      * @param figures - Фигуры с которыми проверять столкновение,
      *                  не стоит забывать, если они не входят в зону
      *                  обнаружения (zoneDetect), они будут проигнорированы
      */
-    detectCollision(figures, callback){
+    detectCollision(figures, callbackForFigure, callbackForPoint){
         let arrDetectFigure = this.getDetectedNearestFigures(figures, this.zoneDetect);
         this.collisionFigures = [];
         //Обнаруживаем столкновения с фигурами
-        for(let j = 0; j < arrDetectFigure.length; j++){
-            let collisionFigure = this.getArrPointFromCrossingFigures(arrDetectFigure[j], callback);
+        for(let i = 0; i < arrDetectFigure.length; i++){
+            let collisionFigure = this.getArrPointFromCrossingFigures(arrDetectFigure[i], callbackForPoint);
             //Если есть столкновение то добавляем его в массив столкновений проверяемой фигуры
-            if(collisionFigure !== -1)
+            if(collisionFigure !== -1){
+                callbackForFigure !== null?callbackForFigure(arrDetectFigure[i]):0;
                 this.collisionFigures.push(collisionFigure);
+            }
         }
     }
 

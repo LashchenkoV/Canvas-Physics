@@ -1,11 +1,9 @@
 class Circle extends Figure{
-    constructor(centerPoint, countPoint, radius, speed, color){
+    constructor(centerPoint, countPoint, radius, massa, speed, color){
         Circle.centerMass = centerPoint;
         Circle.radius = radius;
         Circle.countPoint = countPoint <= 100 ? countPoint : 100;
-        super();
-        this.speed = speed === undefined?5:speed;
-        this.fillStyle = color === undefined?Canvas.getRandomColorRGBA():color;
+        super(null, massa, speed, color );
     }
 
     shapeFigure(){

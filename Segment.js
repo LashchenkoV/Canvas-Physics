@@ -32,6 +32,17 @@ class Segment {
         this.from.normalizePoint(normalize);
         this.to.normalizePoint(normalize);
     }
+
+    /**
+     * Вращает отрезок вокруг точки
+     * @param point - точка вокруг какой вращать
+     * @param deg - колличество градусов
+     */
+    rotateSegment(point, deg){
+        this.from.rotatePoint(point, deg);
+        this.to.rotatePoint(point, deg);
+    }
+
     /**
      * Выводит линию
      * @param ctx

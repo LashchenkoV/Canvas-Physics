@@ -1,17 +1,17 @@
 class Main{
     constructor(){
         this.figures = [];
-        this.figures.push(new Rectangle(10,600,new Point(0,300), 0, "#666"));
-        this.figures.push(new Rectangle(800,10,new Point(400,600), 0, "#666"));
-        this.figures.push(new Rectangle(10,600,new Point(800,300), 0, "#666"));
-        this.figures.push(new Rectangle(800,10,new Point(400,0), 0, "#666"));
-        this.figures.push(new Rectangle(300,10,new Point(200,100), 0, "#666"));
+        this.figures.push(new Rectangle(10,600,new Point(0,300), 0, 0, "#666"));
+        this.figures.push(new Rectangle(800,10,new Point(400,600),0, 0, "#666"));
+        this.figures.push(new Rectangle(10,600,new Point(800,300), 0, 0, "#666"));
+        this.figures.push(new Rectangle(800,10,new Point(400,0), 0, 0, "#666"));
+        this.figures.push(new Rectangle(300,10,new Point(200,200),0, 0, "#666"));
 
-        this.figures.push(new Circle(new Point(300,250), 3, 100,20));
-        this.figures.push(new Circle(new Point(300,450), 4, 100,20));
-        this.figures.push(new Circle(new Point(500,400), 30, 70, 40));
-        this.figures.push(new Circle(new Point(100,400), 7, 70, 40));
-        this.figures.push(new Rectangle(100,100,new Point(500,250) ,20, "green"));
+        this.figures.push(new Circle(new Point(300,250), 3, 100, 20, 20));
+        this.figures.push(new Circle(new Point(300,450), 4, 100, 20, 20));
+        this.figures.push(new Circle(new Point(500,400), 30, 70, 10, 40));
+        this.figures.push(new Circle(new Point(100,400), 7, 70, 100, 40));
+        this.figures.push(new Rectangle(100,100, new Point(500,250) ,50, 20, "green"));
         this.idActiveFigure = -1;
         this.indexActiveFigureFromArray = -1;
         window.addEventListener("load",()=>this.init())
@@ -22,6 +22,7 @@ class Main{
         this.ctx = this.canvas.getContext("2d");
         this.ctx.width = parseInt(this.canvas.width);
         this.ctx.height = parseInt(this.canvas.height);
+
         //Cвет
         // this.ctx.globalCompositeOperation = 'lighter';
 
@@ -53,6 +54,7 @@ class Main{
             for(let i = 0; i<this.figures.length; i++){
                 if(this.figures[i].speed !== 0 && this.figures[i].isPointFromFigure(this.cursor)){
                     document.body.style.cursor = 'none';
+                    this.figures[i].rotate(this.figures[i].centerMass, 1);
                     this.figures[i].active = 1;
                     this.indexActiveFigureFromArray = i;
                     this.idActiveFigure = this.figures[i].id;
@@ -88,14 +90,26 @@ class Main{
             this.figures[i].paintFigure(this.ctx);
             //Если предмет не замороженный
             if(this.figures[i].freeze !== 1){
-                //Проверяем столкновение, и вызываем callback для Point
-                this.figures[i].detectCollision(this.figures, (point)=>{
-                    point.paintPoint(this.ctx, 5, false ,"red");
-                });
+                this.figures[i].rotate(this.figures[i].segments[0].from, 2);
+                //Проверяем столкновение, и вызываем callback сначала для Figure
+                //с которой collision потом для Point
+                this.figures[i].detectCollision(this.figures,
+                    null,
+                    // (figure)=>{
+                    //     if (figure.freeze === 1) return false;
+                    //     let norm = figure.centerMass.getNormalizePoint(this.figures[i].finalMovePoint,this.figures[i].power)
+                    //     figure.normalize(norm);
+                    // },
+                    (point)=>{
+                        point.paintPoint(this.ctx, 5, false ,"red");
+                    }
+                );
 
-                //Если фигура не на конечной точке
+                // let gravityNormalize = this.figures[i].centerMass.getNormalizePoint(new Point(this.figures[i].finalMovePoint.x, 600), this.figures[i].acceleration)
+                // this.figures[i].normalize(gravityNormalize);
+                // //Если фигура не на конечной точке
                 if(!(this.figures[i].isFigureFromPoint(this.figures[i].finalMovePoint))){
-                    new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Speed: "+this.figures[i].speed+" Square: "+this.figures[i].getSquareFigure()+" P: "+this.figures[i].getPerimeter())
+                    new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Power: "+this.figures[i].power+" Massa: "+this.figures[i].massa)
                     this.figures[i].normalize();
                 }
             }
