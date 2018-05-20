@@ -88,13 +88,13 @@ class Main{
             this.figures[i].paintFigure(this.ctx);
             //Если предмет не замороженный
             if(this.figures[i].freeze !== 1){
-                //Проверяем столкновение
-                this.figures[i].detectCollision(this.figures);
-                // if(this.indexActiveFigureFromArray !== -1)
-                //     console.log(this.figures[this.indexActiveFigureFromArray].collisionFigures)
+                //Проверяем столкновение, и вызываем callback для Point
+                this.figures[i].detectCollision(this.figures, (point)=>{
+                    point.paintPoint(this.ctx, 5, false ,"red");
+                });
 
                 //Если фигура не на конечной точке
-                if(!(this.figures[i].isFigureFromPoint(5,this.figures[i].finalMovePoint))){
+                if(!(this.figures[i].isFigureFromPoint(this.figures[i].finalMovePoint))){
                     new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Speed: "+this.figures[i].speed+" Square: "+this.figures[i].getSquareFigure()+" P: "+this.figures[i].getPerimeter())
                     this.figures[i].normalize();
                 }
