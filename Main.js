@@ -90,7 +90,7 @@ class Main{
             this.figures[i].paintFigure(this.ctx);
             //Если предмет не замороженный
             if(this.figures[i].freeze !== 1){
-                this.figures[i].rotate(this.figures[i].segments[0].from, 2);
+                this.figures[i].rotate(this.figures[i].segments[0].from, 1, 2);
                 //Проверяем столкновение, и вызываем callback сначала для Figure
                 //с которой collision потом для Point
                 this.figures[i].detectCollision(this.figures,

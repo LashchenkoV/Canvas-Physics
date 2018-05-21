@@ -36,11 +36,12 @@ class Segment {
     /**
      * Вращает отрезок вокруг точки
      * @param point - точка вокруг какой вращать
+     * @param direction - в какую сторону, -> -(int) || +(int)
      * @param deg - колличество градусов
      */
-    rotateSegment(point, deg){
-        this.from.rotatePoint(point, deg);
-        this.to.rotatePoint(point, deg);
+    rotateSegment(point, direction, deg){
+        this.from.rotatePoint(point, direction, deg);
+        this.to.rotatePoint(point, direction, deg);
     }
 
     /**

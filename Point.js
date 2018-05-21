@@ -74,15 +74,14 @@ class Point {
     /**
      * Вращает точку вокруг Point
      * @param point - точка вокруг которой вращать
+     * @param direction - в какую сторону, -> -(int) || +(int)
      * @param deg - Колличество градусов
      */
-    rotatePoint(point,deg){
+    rotatePoint(point, direction, deg){
         deg = deg*Math.PI/180;
-        let X = point.x + (this.x - point.x) * Math.cos(deg) - (this.y - point.y) * Math.sin(deg);
-        let Y = point.y + (this.y - point.y) * Math.cos(deg) + (this.x - point.x) * Math.sin(deg);
-        this.x = X;
-        this.y = Y;
-        //return new Point(X,Y)
+        direction = parseInt(direction)>0?1:-1;
+        this.x = point.x + (this.x - point.x) * Math.cos(deg) - ((this.y - point.y) * Math.sin(deg))*direction;
+        this.y = point.y + (this.y - point.y) * Math.cos(deg) + ((this.x - point.x) * Math.sin(deg))*direction;
     }
 
     /**
