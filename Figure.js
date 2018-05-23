@@ -113,17 +113,17 @@ class Figure {
     /**
      * Пересекаются ли фигуры
      * @param figure - фигура которую проверяем на пересекаемость с нашей
-     * @param callbackForPoint - функция которую нужно применить для точки, например рисовать.
+     * @param callback - функция которую нужно применить для фигуры и точки, например рисовать.
      * @return {object}||-1 - Если есть сопадения то обьект с id figure and cross Points
      */
-    getArrPointFromCrossingFigures(figure, callbackForPoint){
+    getArrPointFromCrossingFigures(figure, callback){
         let arrPoints = {idFigure:figure.id,points:[]};
         for (let i = 0; i < this.segments.length; i++){
             for (let j = 0; j < figure.segments.length; j++){
-                let isCross = this.segments[i].isCross(figure.segments[j]);
-                if(isCross !== false){
-                    callbackForPoint!==undefined?callbackForPoint(isCross):0;
-                    arrPoints.points.push(isCross)
+                let point = this.segments[i].isCross(figure.segments[j]);
+                if(point !== false){
+                    callback!==undefined?callback(figure, point):0;
+                    arrPoints.points.push(point)
                 }
             }
         }
@@ -134,23 +134,22 @@ class Figure {
 
     /**
      * Обнаруживает столкновения с figures, результат хранится в this.collisionFigures
-     * @param callbackForPoint - функция которую нужно применить для Point.
-     * @param callbackForFigure - функция которую нужно применить для Figure c которой
-     *                            столкнулись, если она не нужна, а callbackPoint нужна,
-     *                            передать вместо ф-ции null
+     * @param callback(figure, point) - функция которую нужно применить для Point
+     *                                  и для Figure c которой
+     *                                  столкнулись, если она не нужна, а callbackPoint нужна,
+     *                                  передать вместо ф-ции null
      * @param figures - Фигуры с которыми проверять столкновение,
      *                  не стоит забывать, если они не входят в зону
      *                  обнаружения (zoneDetect), они будут проигнорированы
      */
-    detectCollision(figures, callbackForFigure, callbackForPoint){
+    detectCollision(figures, callback){
         let arrDetectFigure = this.getDetectedNearestFigures(figures, this.zoneDetect);
         this.collisionFigures = [];
         //Обнаруживаем столкновения с фигурами
         for(let i = 0; i < arrDetectFigure.length; i++){
-            let collisionFigure = this.getArrPointFromCrossingFigures(arrDetectFigure[i], callbackForPoint);
+            let collisionFigure = this.getArrPointFromCrossingFigures(arrDetectFigure[i], callback);
             //Если есть столкновение то добавляем его в массив столкновений проверяемой фигуры
             if(collisionFigure !== -1){
-                callbackForFigure !== null?callbackForFigure(arrDetectFigure[i]):0;
                 this.collisionFigures.push(collisionFigure);
             }
         }

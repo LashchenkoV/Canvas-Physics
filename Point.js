@@ -84,11 +84,17 @@ class Point {
         this.y = Y;
     }
 
+    isMatches(point){
+        if(this.x === point.x && this.y === point.y) return true;
+        return false;
+    }
+
     /**
      * Двигает точку на point пикселей
      * @param point
      */
     normalizePoint(point){
+        if(point !== undefined && this.isMatches(point)) return;
         this.x +=  point.x;
         this.y +=  point.y;
     }

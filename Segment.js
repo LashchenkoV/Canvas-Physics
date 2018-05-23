@@ -14,10 +14,6 @@ class Segment {
         this.lineWidth = lineWidth === undefined?1:lineWidth;
     }
 
-    getVector(){
-        return new Point(this.to.x-this.from.x, this.to.y-this.from.y);
-    }
-
     getAngle(segment){
         let vector1 = this.getVector(),
             vector2 = segment.getVector();

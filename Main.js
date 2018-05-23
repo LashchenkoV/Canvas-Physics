@@ -14,25 +14,21 @@ class Main{
         this.figures.push(new Rectangle(100,100, new Point(500,250) ,50, 20, "green"));
         this.idActiveFigure = -1;
         this.indexActiveFigureFromArray = -1;
+
+        this.unitSpaceName = 'cm'||'mm';
+        //Сколько пикселей в одном unitSpace
+        this.unitSpaceValue = 40;
+        this.unitAngleName = 'deg' || 'rad';
+        //Сколько радиан в одном unitAngle
+        this.unitAngleValue = Math.PI/180;
+
         window.addEventListener("load",()=>this.init())
     }
 
     init(){
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
-        this.ctx.width = parseInt(this.canvas.width);
-        this.ctx.height = parseInt(this.canvas.height);
-
-        //Cвет
-        // this.ctx.globalCompositeOperation = 'lighter';
-
-        //Прозрачность
-        // this.ctx.globalAlpha = 1;
-
-        //Тень
-        // this.ctx.shadowColor = '#999';
-        // this.ctx.shadowOffsetY = 100;
-        // this.ctx.shadowOffsetX = 100;
+        this.initUnits();
 
         //FPS счётчик
         this.fps = new Stats();
@@ -41,6 +37,20 @@ class Main{
 
         this.bindEvent();
         this.update();
+    }
+
+    /**
+     * Присваивает Canvas -у единицы измерения пространства и углов.
+     */
+    initUnits(){
+        this.ctx.width = parseInt(this.canvas.width);
+        this.ctx.height = parseInt(this.canvas.height);
+        this.ctx.unitSpace = this.unitSpaceName;
+        this.ctx.unitSpaceRatio = this.unitSpaceValue;
+        this.ctx.spaceX = this.ctx.width/this.unitSpaceValue;
+        this.ctx.spaceY = this.ctx.height/this.unitSpaceValue;
+        this.ctx.unitAngle = this.unitAngleName;
+        this.ctx.unitAngleValue = this.unitAngleValue;
     }
 
     bindEvent(){
@@ -88,31 +98,25 @@ class Main{
         Canvas.paintMash(this.ctx,{x:50,y:50},"#DEDEDE");
         for(let i = 0; i<this.figures.length; i++){
             this.figures[i].paintFigure(this.ctx);
-            //Если предмет не замороженный
-            if(this.figures[i].freeze !== 1){
-                this.figures[i].rotate(this.figures[i].segments[0].from, -1);
-                //Проверяем столкновение, и вызываем callback сначала для Figure
-                //с которой collision потом для Point
-                this.figures[i].detectCollision(this.figures,
-                    null,
-                    // (figure)=>{
-                    //     if (figure.freeze === 1) return false;
-                    //     let norm = figure.centerMass.getNormalizePoint(this.figures[i].finalMovePoint,this.figures[i].power)
-                    //     figure.normalize(norm);
-                    // },
-                    (point)=>{
-                        point.paintPoint(this.ctx, 5, false ,"red");
-                    }
-                );
 
-                // let gravityNormalize = this.figures[i].centerMass.getNormalizePoint(new Point(this.figures[i].finalMovePoint.x, 600), this.figures[i].acceleration)
-                // this.figures[i].normalize(gravityNormalize);
-                // //Если фигура не на конечной точке
-                if(!(this.figures[i].isFigureFromPoint(this.figures[i].finalMovePoint))){
-                    new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Power: "+this.figures[i].power+" Massa: "+this.figures[i].massa)
-                    this.figures[i].normalize();
+            //Проверяем столкновение, и вызываем callback для Figure с которой collision и Point
+            this.figures[i].detectCollision(this.figures,
+                (figure, point)=>{
+                    if(figure.freeze === 1){
+                         point.paintPoint(this.ctx, 2, true ,"red");
+                        //this.figures[i].normalize()
+                    }
                 }
+            );
+
+            // let gravityNormalize = this.figures[i].centerMass.getNormalizePoint(new Point(this.figures[i].finalMovePoint.x, 600), this.figures[i].acceleration)
+            // this.figures[i].normalize(gravityNormalize);
+            // //Если фигура не на конечной точке
+            if(!(this.figures[i].isFigureFromPoint(this.figures[i].finalMovePoint))){
+                new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Power: "+this.figures[i].power+" Massa: "+this.figures[i].massa)
+                this.figures[i].normalize();
             }
+
         }
         this.fps.end();
         requestAnimationFrame(()=>this.update());
