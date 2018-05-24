@@ -1,18 +1,18 @@
 class Figure {
-    constructor(points, massa, power, color){
+    constructor(points, massa, maxSpeed, color){
         this.id = Canvas.getRandomInt(Canvas.getRandomInt(0,new Date().getTime()),new Date().getTime());
         this.fillStyle = color === undefined? Canvas.getRandomColorRGBA():color;
-        this.power = power === undefined?1:power;
+        this.maxSpeed = maxSpeed === undefined?1:maxSpeed;
         this.massa = massa === undefined?1:massa;
         this.gravity = 9.34;
-        this.acceleration = this.power/this.massa;
+        this.acceleration = this.maxSpeed/this.massa;
         this.segments = [];
         this.centerMass = {};
         this.collisionFigures = [];
         this.zoneDetect = 350;
         this.shapeFigure(points);
         this.active = 0;
-        this.freeze = this.power !== 0 ? 0 : 1;
+        this.freeze = this.maxSpeed !== 0 ? 0 : 1;
         this.zoneDetect = this.freeze === 1?0:410;
         this.updateCenterMass();
         this.finalMovePoint = this.centerMass;
@@ -83,7 +83,7 @@ class Figure {
      */
     normalize(normalize){
         this.updateCenterMass();
-        normalize = normalize===undefined?this.centerMass.getNormalizePoint(this.finalMovePoint, this.power):normalize;
+        normalize = normalize===undefined?this.centerMass.getNormalizePoint(this.finalMovePoint, this.maxSpeed):normalize;
         for (let i = 0; i< this.segments.length; i++){
             this.segments[i].normalizeSegment(normalize);
         }

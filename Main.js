@@ -11,7 +11,7 @@ class Main{
         this.figures.push(new Circle(new Point(300,450), 4, 100, 20, 20));
         this.figures.push(new Circle(new Point(500,400), 30, 70, 10, 40));
         this.figures.push(new Circle(new Point(100,400), 7, 70, 100, 40));
-        this.figures.push(new Rectangle(100,100, new Point(500,250) ,50, 20, "green"));
+        this.figures.push(new Rectangle(100,100, new Point(500,250) ,50, 20, "rgba(255,0,255,0.5)"));
         this.idActiveFigure = -1;
         this.indexActiveFigureFromArray = -1;
 
@@ -102,10 +102,10 @@ class Main{
             //Проверяем столкновение, и вызываем callback для Figure с которой collision и Point
             this.figures[i].detectCollision(this.figures,
                 (figure, point)=>{
-                    if(figure.freeze === 1){
+                    //if(figure.freeze === 1){
                          point.paintPoint(this.ctx, 2, true ,"red");
                         //this.figures[i].normalize()
-                    }
+                    //}
                 }
             );
 
@@ -113,7 +113,7 @@ class Main{
             // this.figures[i].normalize(gravityNormalize);
             // //Если фигура не на конечной точке
             if(!(this.figures[i].isFigureFromPoint(this.figures[i].finalMovePoint))){
-                new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Power: "+this.figures[i].power+" Massa: "+this.figures[i].massa)
+                new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Power: "+this.figures[i].maxSpeed+" Massa: "+this.figures[i].massa)
                 this.figures[i].normalize();
             }
 
