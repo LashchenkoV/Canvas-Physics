@@ -34,22 +34,21 @@ class Canvas{
     /**
      * Рисует сетку на Canvas
      * @param ctx - canvas с ОБЯЗАТЕЛЬНЫМИ параметрами height, width
-     * @param step - {x:0,y:0} - размер клетки
-     * @param color - цвет сетки
+     * @param point new Point(x,y,color)
      */
-    static paintMash(ctx,step,color){
+    static paintMash(ctx,point){
         let mash = new Path2D(),
             width = parseInt(ctx.width),
             height = parseInt(ctx.height);
 
         ctx.lineWidth = 1;
-        ctx.strokeStyle = color === undefined ? "#999" : color;
+        ctx.strokeStyle = point.color;
 
-        for(let i = 0; i < width; i += step.x){
+        for(let i = 0; i < width; i += point.x){
             mash.moveTo(i+0.5,0);
             mash.lineTo(i+0.5,height);
         }
-        for(let i = 0 ; i < height; i +=  step.y){
+        for(let i = 0 ; i < height; i +=  point.y){
             mash.moveTo(0,i+0.5);
             mash.lineTo(width,i+0.5);
         }

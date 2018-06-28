@@ -99,4 +99,7 @@ class Point {
         this.y +=  point.y;
     }
 
+    getDifference(point){
+        return new Point(this.x-point.x,this.y-point.y,this.color);
+    }
 }

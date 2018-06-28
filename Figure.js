@@ -9,11 +9,10 @@ class Figure {
         this.segments = [];
         this.centerMass = {};
         this.collisionFigures = [];
-        this.zoneDetect = 350;
+        this.zoneDetect = 410;
         this.shapeFigure(points);
         this.active = 0;
         this.freeze = this.maxSpeed !== 0 ? 0 : 1;
-        this.zoneDetect = this.freeze === 1?0:410;
         this.updateCenterMass();
         this.finalMovePoint = this.centerMass;
     }
@@ -82,11 +81,11 @@ class Figure {
      * Сдвигает обьект к конечной точке на нужное колл пикселей
      */
     normalize(normalize){
-        this.updateCenterMass();
         normalize = normalize===undefined?this.centerMass.getNormalizePoint(this.finalMovePoint, this.maxSpeed):normalize;
         for (let i = 0; i< this.segments.length; i++){
             this.segments[i].normalizeSegment(normalize);
         }
+        this.updateCenterMass();
     }
 
     /**
@@ -113,23 +112,21 @@ class Figure {
     /**
      * Пересекаются ли фигуры
      * @param figure - фигура которую проверяем на пересекаемость с нашей
-     * @param callback - функция которую нужно применить для фигуры и точки, например рисовать.
+     * @param callPoint - функция которую нужно применить для точки коллизии, например рисовать.
      * @return {object}||-1 - Если есть сопадения то обьект с id figure and cross Points
      */
-    getArrPointFromCrossingFigures(figure, callback){
+    getArrPointFromCrossingFigures(figure, callPoint){
         let arrPoints = {idFigure:figure.id,points:[]};
         for (let i = 0; i < this.segments.length; i++){
             for (let j = 0; j < figure.segments.length; j++){
                 let point = this.segments[i].isCross(figure.segments[j]);
                 if(point !== false){
-                    callback!==undefined?callback(figure, point):0;
-                    arrPoints.points.push(point)
+                    arrPoints.points.push(point);
+                    callPoint(point);
                 }
             }
         }
-        if(arrPoints.points.length !== 0)
-            return arrPoints;
-        else return -1;
+        return arrPoints.points.length !== 0 ? arrPoints : -1;
     }
 
     /**
@@ -142,14 +139,17 @@ class Figure {
      *                  не стоит забывать, если они не входят в зону
      *                  обнаружения (zoneDetect), они будут проигнорированы
      */
-    detectCollision(figures, callback){
+    detectCollision(figures, callFigure, callPoint){
+        if(callFigure==null) callFigure = function () {};
+        if(callPoint==null) callPoint = function () {};
         let arrDetectFigure = this.getDetectedNearestFigures(figures, this.zoneDetect);
         this.collisionFigures = [];
         //Обнаруживаем столкновения с фигурами
         for(let i = 0; i < arrDetectFigure.length; i++){
-            let collisionFigure = this.getArrPointFromCrossingFigures(arrDetectFigure[i], callback);
+            let collisionFigure = this.getArrPointFromCrossingFigures(arrDetectFigure[i], callPoint);
             //Если есть столкновение то добавляем его в массив столкновений проверяемой фигуры
             if(collisionFigure !== -1){
+                callFigure(arrDetectFigure[i]);
                 this.collisionFigures.push(collisionFigure);
             }
         }
@@ -171,6 +171,18 @@ class Figure {
     }
 
     /**
+     * Возвращает массив вершин фигуры
+     * @returns {Array}
+     */
+    getArrTopPointsFromFigure(){
+        let obj = [];
+        for(let i=0;i<this.segments.length;i++){
+            obj.push(this.segments[i].from);
+        }
+        return obj;
+    }
+
+    /**
      * Входит ли точка в фигуру
      * @param point
      * @return {boolean}
@@ -178,14 +190,13 @@ class Figure {
     isPointFromFigure(point){
         let arrPoint = this.getArrPointsFromFigure();
         let j = arrPoint.x.length-1;
-        let c = 0;
+        let c = false;
         for (let i = 0; i < arrPoint.x.length; i++) {
             if (((arrPoint.y[i] <= point.y && point.y < arrPoint.y[j]) || (arrPoint.y[j] <= point.y && point.y < arrPoint.y[i])) && point.x > (arrPoint.x[j] - arrPoint.x[i]) * (point.y - arrPoint.y[i]) / (arrPoint.y[j] - arrPoint.y[i]) + arrPoint.x[i])
                 c = !c;
             j = i;
         }
-        if(c) return true;
-        return false;
+        return c;
     }
 
     /**
@@ -200,18 +211,6 @@ class Figure {
             this.segments[i].paintSegmentFromFigure(ctx);
         }
         ctx.fill();
-    }
-
-    /**
-     * Возвращает позицию отрезка в фигуре
-     * @param segment - какой отрезок найти
-     * @return {number}
-     */
-    getPositionSegmentFromFigure(segment){
-        for(let i = 0; i< this.segments.length; i++){
-            if(this.segments[i].id === segment.id) return i;
-        }
-        return -1;
     }
 
     /**

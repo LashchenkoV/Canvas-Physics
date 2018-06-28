@@ -10,7 +10,7 @@ class Main{
         this.figures.push(new Circle(new Point(300,250), 3, 100, 20, 20));
         this.figures.push(new Circle(new Point(300,450), 4, 100, 20, 20));
         this.figures.push(new Circle(new Point(500,400), 30, 70, 10, 40));
-        this.figures.push(new Circle(new Point(100,400), 7, 70, 100, 40));
+        this.figures.push(new Circle(new Point(100,400), 7, 70, 100, 40, "rgba(83, 138, 255, 0.56)"));
         this.figures.push(new Rectangle(100,100, new Point(500,250) ,50, 20, "rgba(255,0,255,0.5)"));
         this.idActiveFigure = -1;
         this.indexActiveFigureFromArray = -1;
@@ -95,28 +95,22 @@ class Main{
     update(){
         this.fps.begin();
         this.ctx.clearRect(0,0,800,600);
-        Canvas.paintMash(this.ctx,{x:50,y:50},"#DEDEDE");
+        Canvas.paintMash(this.ctx,new Point(50,50,"#DEDEDE"));
         for(let i = 0; i<this.figures.length; i++){
             this.figures[i].paintFigure(this.ctx);
-
-            //Проверяем столкновение, и вызываем callback для Figure с которой collision и Point
+            //Если фигура на конечной точке то ничего не делаем
+            if(this.figures[i].isFigureFromPoint(this.figures[i].finalMovePoint) && this.figures[i].freeze===1 ){
+                continue;
+            }
+            //Проверяем на столкновение фигуры которые двигаются
             this.figures[i].detectCollision(this.figures,
-                (figure, point)=>{
-                    //if(figure.freeze === 1){
-                         point.paintPoint(this.ctx, 2, true ,"red");
-                        //this.figures[i].normalize()
-                    //}
+                null,
+                (point)=>{
+                    point.paintPoint(this.ctx, 3, false ,"red");
                 }
             );
-
-            // let gravityNormalize = this.figures[i].centerMass.getNormalizePoint(new Point(this.figures[i].finalMovePoint.x, 600), this.figures[i].acceleration)
-            // this.figures[i].normalize(gravityNormalize);
-            // //Если фигура не на конечной точке
-            if(!(this.figures[i].isFigureFromPoint(this.figures[i].finalMovePoint))){
-                new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Power: "+this.figures[i].maxSpeed+" Massa: "+this.figures[i].massa)
-                this.figures[i].normalize();
-            }
-
+            this.figures[i].normalize();
+            new Segment(this.figures[i].centerMass, this.figures[i].finalMovePoint, "#111").paintSegment(this.ctx,true,"Power: "+this.figures[i].maxSpeed+" Massa: "+this.figures[i].massa)
         }
         this.fps.end();
         requestAnimationFrame(()=>this.update());
